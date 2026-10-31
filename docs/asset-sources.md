@@ -22,4 +22,23 @@ The CC BY images require attribution, a link to the license, and an indication o
 - Binary source: https://fonts.gstatic.com/s/manrope/v23/xn7gYHE41ni1AdIRggexSg.woff2
 - License: SIL Open Font License 1.1; full text retained at `/fonts/OFL-Manrope.txt`.
 - License source: https://raw.githubusercontent.com/google/fonts/main/ofl/manrope/OFL.txt
-- Korean and characters outside the Latin subset must use the application's sans-serif fallback.
+- Operational screens retain the application's Korean fallback. Landing C uses two local Korean subsets; see [landing-font-source.md](landing-font-source.md).
+
+## Landing C generated illustrations
+
+Native image_gen/nativegen8 generated these eight WebP assets on 2026-10-31 for the approved C screenprint direction. They are illustrative demo imagery, not real merchant photographs or evidence of recipes/portions. The approved comp is not cropped into shipping UI; text and controls are semantic HTML.
+
+| Asset under `/images/print/` | Dimensions | Use |
+| --- | --- | --- |
+| `festival.webp` | 1834×858 | Vendor-to-traveler handoff hero |
+| `vendor-art.webp` | 1536×1024 | Vendor cooking scene |
+| `flow-menu.webp` | 360×360 | Menu publication |
+| `flow-qr.webp` | 360×360 | QR ordering |
+| `flow-cook.webp` | 360×360 | Cooking |
+| `flow-pickup.webp` | 360×360 | Pickup |
+| `food.webp` | 640×640 | Tteokbokki menu sample |
+| `paper.webp` | 512×512 | Repeating paper texture |
+
+Each WebP has an adjacent `<filename>.json` containing its exact generation/edit prompt and creation time. PNG originals with provenance are at repository-root `assets/plates/`, with prompt files in `assets/plates/prompts/`. Final vendor artwork uses exact-alpha WebP encoding with alpha quality 100; seven exterior alpha samples are zero. Hidden RGB under transparent pixels is not evidence of a visible fringe.
+
+The landing also uses `/images/hotteok.jpg` and preserves Sandra Vallaure / CC BY 2.0 attribution in the shared credits UI. The demo-photo notice remains. Generated asset provenance passed 8/8; actual browser compositing, crop and visual fidelity remain unverified.
