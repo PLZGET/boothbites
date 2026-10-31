@@ -8,6 +8,13 @@
       "when": 1793408463266,
       "tag": "0000_overconfident_gauntlet",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1793426119168,
+      "tag": "0001_outstanding_franklin_richards",
+      "breakpoints": true
     }
   ]
 }

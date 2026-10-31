@@ -10,10 +10,11 @@ Node.js 22.13 이상이 필요합니다.
 npm ci
 npm run build
 node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js d1 execute DB --local --config dist/server/wrangler.json --persist-to .wrangler/state --file drizzle/0000_overconfident_gauntlet.sql
+node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js d1 execute DB --local --config dist/server/wrangler.json --persist-to .wrangler/state --file drizzle/0001_outstanding_franklin_richards.sql
 npm run dev
 ```
 
-스키마 적용 명령은 새 로컬 데이터베이스에서 한 번만 실행합니다. 서버 주소는 `http://127.0.0.1:5173`입니다.
+SQL 명령은 새 로컬 DB에서 각각 한 번만 실행합니다. 기존 DB에는 아직 적용하지 않은 마이그레이션만 실행합니다. 서버 주소는 `http://127.0.0.1:5173`입니다.
 
 - `/`: 발표용 서비스 소개 랜딩페이지
 - `/demo`: 이 브라우저의 데모 부스 손님 화면
@@ -30,7 +31,7 @@ npm run dev
 4. 사장님 화면에 들어온 주문을 `조리 시작 → 준비 완료 → 수령 완료`로 변경합니다.
 5. 손님 화면의 픽업 티켓이 같은 상태로 갱신되는 것을 확인합니다.
 
-별도 기기 시연에는 호스팅된 주소를 사용합니다. 로컬 주소는 다른 기기에서 열리지 않습니다. Sites 배포는 기본 비공개 검토용으로, 외부 심사위원에게 전달하려면 호스팅 접근 범위를 별도로 설정해야 합니다.
+별도 기기 시연에는 호스팅된 주소를 사용합니다. 로컬 주소는 다른 기기에서 열리지 않습니다. 현재 배포는 공개 상태이며 로그인 없이 접속할 수 있습니다. 부스 관리와 영수증은 별도 토큰으로 보호합니다.
 
 ## 구현
 
@@ -45,9 +46,11 @@ npm run dev
 
 ## AI 메뉴판 인식
 
-서버의 `OPENAI_API_KEY`가 설정되면 이미지에서 메뉴명·가격과 한영 설명 초안을 추출합니다. `OPENAI_MODEL`은 선택 사항이며 기본값은 `gpt-4.1-mini`입니다. [Responses 이미지 입력](https://developers.openai.com/api/docs/guides/images-vision)과 [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs)를 사용합니다.
+서버의 `ANTHROPIC_API_KEY`가 설정되면 Claude가 이미지에서 메뉴명·가격과 한영 설명 초안을 추출합니다. `ANTHROPIC_MODEL`은 선택 사항이며 기본값은 `claude-sonnet-5-5`입니다. [Claude 이미지 입력](https://platform.claude.com/docs/en/build-with-claude/vision)과 [구조화 응답](https://platform.claude.com/docs/en/build-with-claude/structured-outputs)을 사용합니다.
 
 로컬은 무시되는 `.dev.vars`에 키를 설정하고 서버를 다시 시작합니다. 호스팅에서는 Sites의 서버 환경변수 관리로 비밀 값을 등록합니다. 브라우저에 키를 넣지 마세요.
+
+공개 데모는 사이트 전체 하루 50회까지 AI를 호출합니다. 한국 시간 자정에 초기화하며 실패한 호출도 포함합니다. 서버의 `AI_DAILY_LIMIT`으로 1~1000회 범위에서 조정할 수 있습니다. 잘못된 이미지나 관리 권한이 없는 요청은 호출 전에 차단합니다.
 
 키가 없으면 AI 버튼이 비활성화되며 직접 입력과 예시 메뉴 불러오기를 사용할 수 있습니다. 예시 메뉴를 사진 인식 결과로 표시하지 않습니다. 원재료·알레르기·식이 안전은 AI가 추정하지 않으며 판매자가 확인한 정보만 표시합니다.
 
@@ -60,12 +63,12 @@ npm test
 npm run test:api
 ```
 
-단위 테스트는 가격·재고·중복 주문·조리 한도·취소 복구·공개 데이터 범위를 확인합니다. API 테스트는 실제 로컬 D1에서 마지막 재고 동시 주문, 관리 권한, 영수증 접근, 상태 전환, 접수 중단, 메뉴 변경 충돌을 검증합니다. 테스트는 독립된 데모 부스를 생성합니다.
+단위 테스트는 가격·재고·중복 주문·조리 한도·취소 복구·공개 데이터 범위, Claude 요청 형식·실패 응답·잘못된 초안 차단·AI 일일 한도를 확인합니다. API 테스트는 실제 로컬 D1에서 마지막 재고 동시 주문, 관리 권한, 영수증 접근, 상태 전환, 접수 중단, 메뉴 변경 충돌을 검증합니다. 테스트는 독립된 데모 부스를 생성합니다.
 
 ## 현재 범위
 
 - 결제는 **자체 모의 결제**입니다. PG 샌드박스 또는 실제 해외카드 결제 연동은 아직 하지 않았습니다. 실제 카드 정보는 받지 않습니다.
-- AI API 키가 제공되지 않아 실제 이미지 인식 호출은 검증하지 않았습니다.
+- Claude 실제 이미지 호출로 두 메뉴의 가격과 한영 초안 생성을 확인했습니다. AI 결과는 원문과 다를 수 있으므로 판매자 확인이 필요합니다.
 - 브라우저 자동화가 실행 환경에서 중단되어 렌더링·모바일 조작 검증은 미완료입니다.
 - 상태 갱신은 열린 페이지에서 주기적으로 수행합니다. 백그라운드 푸시 알림이나 SMS는 없습니다.
 - 수량 선택을 지원합니다. 조리 방식 선택이나 유료 추가 옵션은 아직 없습니다.

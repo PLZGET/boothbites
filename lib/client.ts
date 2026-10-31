@@ -13,6 +13,10 @@ const messages: Record<string, [string, string]> = {
  INVALID_TRANSITION: ["This order has changed. Refresh and try again.", "주문 상태가 변경되었습니다. 새로고침 후 확인해 주세요."],
  AI_NOT_CONFIGURED: ["Menu scanning isn't connected. Enter your menu manually.", "AI 인식이 연결되지 않았습니다. 직접 입력하거나 예시 메뉴로 진행해 주세요."],
  AI_UNAVAILABLE: ["We couldn't read the menu. Try again.", "AI 서비스에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요."],
+ AI_AUTH_ERROR: ["Menu scanning needs an administrator to check its API connection.", "Claude API 인증을 확인해야 합니다. 관리자에게 알려 주세요."],
+ AI_RATE_LIMIT: ["Menu scanning is busy. Please try again shortly.", "AI 요청이 몰렸습니다. 잠시 후 다시 시도해 주세요."],
+ AI_DEMO_LIMIT: ["Today's shared AI demo allowance has been used. You can still enter menus manually.", "오늘의 AI 체험 한도를 모두 사용했습니다. 직접 입력은 계속 가능하며, 한국 시간 자정에 한도가 초기화됩니다."],
+ INVALID_IMAGE: ["Choose a JPG, PNG or WebP image up to 4 MB.", "JPG·PNG·WebP 형식의 4MB 이하 사진을 선택해 주세요."],
  AI_UNREADABLE: ["No readable menu found. Try a clearer photo.", "메뉴를 찾지 못했습니다. 선명한 사진으로 다시 시도해 주세요."],
  DEMO_LIMIT: ["This booth reached its demo order limit.", "데모 주문 한도에 도달했습니다."],
 };
