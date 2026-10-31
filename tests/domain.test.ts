@@ -13,3 +13,13 @@ test("pause and unpublished booth reject new orders", () => { const b = createBo
 test("cancellation restores inventory once and prevents state skipping", () => { const b = createBooth("test"); placeOrder(b, input()); assert.throws(() => updateOrder(b, "one", "ready"), fails("INVALID_TRANSITION")); updateOrder(b, "one", "cancelled"); updateOrder(b, "one", "cancelled"); assert.equal(b.menu[0].stock, 30); assert.throws(() => updateOrder(b, "one", "preparing"), fails("INVALID_TRANSITION")); });
 test("public views do not expose order tokens or seller order lists", () => { const b = createBooth("test"); const order = placeOrder(b, input()); assert.equal("orders" in publicBooth(b), false); assert.equal("tokenHash" in publicOrder(order), false); assert.equal("requestId" in publicOrder(order), false); });
 test("menu accepts only verified fields and validates prices and quantities", () => { const b = createBooth("test"); assert.equal(validateMenu(b.menu).length, 3); b.menu[0].price = -1; assert.throws(() => validateMenu(b.menu), fails("INVALID_MENU")); b.menu[0].price = 100; b.menu[0].stock = 1.5; assert.throws(() => validateMenu(b.menu), fails("INVALID_MENU")); });
+
+test("saved food photos survive menu validation only for their own booth", () => {
+  const b = createBooth("photo-test");
+  const path = "/api/booths/photo-test/photos/12345678-1234-1234-1234-123456789012.jpg";
+  b.menu[0].image = path;
+  assert.equal(validateMenu(b.menu, "photo-test")[0].image, path);
+  assert.equal(validateMenu(b.menu, "another-booth")[0].image, "");
+  b.menu[0].image = "https://untrusted.example/photo.jpg";
+  assert.equal(validateMenu(b.menu, "photo-test")[0].image, "");
+});

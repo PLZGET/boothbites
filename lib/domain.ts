@@ -59,7 +59,7 @@ export function updateOrder(booth: Booth, id: string, status: OrderStatus): Orde
   }
   order.status = status; order.updatedAt = new Date().toISOString(); return order;
 }
-export function validateMenu(menu: unknown): MenuItem[] {
+export function validateMenu(menu: unknown, boothId?: string): MenuItem[] {
   if (!Array.isArray(menu) || menu.length < 1 || menu.length > 20) throw new DomainError("INVALID_MENU");
   const ids = new Set<string>();
   return menu.map((raw) => {
@@ -70,6 +70,6 @@ export function validateMenu(menu: unknown): MenuItem[] {
     for (const value of [m.name?.en, m.name?.ko]) if (typeof value !== "string" || !value.trim() || value.length > 100) throw new DomainError("INVALID_MENU");
     if (!Number.isInteger(m.price) || m.price < 100 || m.price > 1000000 || !Number.isInteger(m.stock) || m.stock < 0 || m.stock > 10000) throw new DomainError("INVALID_MENU");
     const text = (v: unknown, limit: number) => typeof v === "string" ? v.slice(0, limit) : "";
-    return { id: m.id, name: { en: m.name.en.trim(), ko: m.name.ko.trim() }, description: { en: text(m.description?.en, 600), ko: text(m.description?.ko, 600) }, portion: { en: text(m.portion?.en, 100), ko: text(m.portion?.ko, 100) }, price: m.price, stock: m.stock, available: m.available === true, image: /^\/images\/[a-z0-9-]+\.(jpg|webp|png)$/.test(m.image) ? m.image : "", category: ["signature", "sweet", "savory"].includes(m.category) ? m.category : "savory", spicy: m.spicy === true, ingredients: text(m.ingredients, 500), ingredientsEn: text(m.ingredientsEn, 500), ingredientsConfirmed: m.ingredientsConfirmed === true };
+    return { id: m.id, name: { en: m.name.en.trim(), ko: m.name.ko.trim() }, description: { en: text(m.description?.en, 600), ko: text(m.description?.ko, 600) }, portion: { en: text(m.portion?.en, 100), ko: text(m.portion?.ko, 100) }, price: m.price, stock: m.stock, available: m.available === true, image: (/^\/images\/[a-z0-9-]+\.(jpg|webp|png)$/.test(m.image) || (boothId && m.image?.startsWith(`/api/booths/${boothId}/photos/`) && /^\/api\/booths\/[a-z0-9-]{1,64}\/photos\/[a-f0-9-]{36}\.(jpg|webp|png)$/.test(m.image))) ? m.image : "", category: ["signature", "sweet", "savory"].includes(m.category) ? m.category : "savory", spicy: m.spicy === true, ingredients: text(m.ingredients, 500), ingredientsEn: text(m.ingredientsEn, 500), ingredientsConfirmed: m.ingredientsConfirmed === true };
   });
 }

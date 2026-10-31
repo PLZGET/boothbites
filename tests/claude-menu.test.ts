@@ -10,7 +10,7 @@ const image = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcS
 const item = { nameKo: "떡볶이", nameEn: "Tteokbokki", price: 5000, descriptionKo: "", descriptionEn: "" };
 const fail = (code: string) => (error: unknown) => error instanceof DomainError && error.code === code;
 const respond = (data: unknown, status = 200) => (async () => Response.json(data, { status })) as typeof fetch;
-const complete = (items: unknown) => ({ stop_reason: "end_turn", content: [{ type: "text", text: JSON.stringify({ items }) }] });
+const complete = (items: unknown, imageType = "menu") => ({ stop_reason: "end_turn", content: [{ type: "text", text: JSON.stringify({ imageType, items }) }] });
 
 test("Claude receives an image and JSON schema; only reviewed draft fields are returned", async () => {
   const send = (async (url, init) => {
@@ -21,15 +21,15 @@ test("Claude receives an image and JSON schema; only reviewed draft fields are r
     assert.equal(payload.messages[0].content[0].source.media_type, "image/png");
     assert.equal(payload.output_config.format.type, "json_schema");
     assert.equal(String(init?.body).includes("test-key"), false);
-    assert.match(payload.system, /Never infer or invent ingredients, allergens/);
+    assert.match(payload.system, /Do not infer hidden fillings/);
     return Response.json(complete([{ ...item, ingredients: "invented" }]));
   }) as typeof fetch;
-  assert.deepEqual(await extractClaudeMenu(parseMenuImage(image), "test-key", undefined, send), [item]);
+  assert.deepEqual(await extractClaudeMenu(parseMenuImage(image), "test-key", undefined, send), { imageType: "menu", items: [item] });
 });
 
 test("unknown price and absent description remain unconfirmed", async () => {
   const draft = { ...item, price: null };
-  assert.deepEqual(await extractClaudeMenu(parseMenuImage(image), "test-key", undefined, respond(complete([draft]))), [draft]);
+  assert.deepEqual(await extractClaudeMenu(parseMenuImage(image), "test-key", undefined, respond(complete([draft]))), { imageType: "menu", items: [draft] });
 });
 
 test("invalid images are rejected before a paid request", () => {
@@ -47,12 +47,11 @@ test("upstream auth, throttling, errors and network failures expose only app err
 
 test("partial, refused, empty, malformed and out-of-range AI results cannot become menu drafts", async () => {
   const invalid = [
-    { ...complete([item]), stop_reason: "max_tokens" }, { ...complete([item]), stop_reason: "refusal" },
     { stop_reason: "end_turn", content: [{ type: "text", text: "not json" }] },
-    complete([]), complete([null]), complete([{ ...item, price: -1 }]), complete([{ ...item, price: 2.5 }]),
+    complete([null]), complete([{ ...item, price: -1 }]), complete([{ ...item, price: 2.5 }]),
     complete([{ ...item, nameEn: "" }]), complete([{ ...item, descriptionEn: "x".repeat(301) }]), complete(Array(13).fill(item)),
   ];
-  for (const result of invalid) await assert.rejects(extractClaudeMenu(parseMenuImage(image), "test-key", undefined, respond(result)), fail("AI_UNREADABLE"));
+  for (const result of invalid) await assert.rejects(extractClaudeMenu(parseMenuImage(image), "test-key", undefined, respond(result)), fail("AI_INVALID_RESPONSE"));
 });
 
 test("shared SQL budget permits exactly the limit and resets at Korean midnight", async () => {
@@ -68,4 +67,16 @@ test("shared SQL budget permits exactly the limit and resets at Korean midnight"
     const rows = sqlite.prepare("SELECT requests FROM ai_usage ORDER BY id").all();
     assert.deepEqual(rows.map(r => r.requests), [3, 1]);
   } finally { sqlite.close(); }
+});
+
+test("food photos produce one suggested dish and never infer a selling price", async () => {
+  const result = await extractClaudeMenu(parseMenuImage(image), "test-key", undefined, respond(complete([item], "food")));
+  assert.equal(result.imageType, "food");
+  assert.equal(result.items[0].price, null);
+  await assert.rejects(extractClaudeMenu(parseMenuImage(image), "test-key", undefined, respond(complete([item, item], "food"))), fail("AI_INVALID_RESPONSE"));
+});
+
+test("empty, truncated and refused results have different actionable errors", async () => {
+  const cases = [[complete([], "other"), "AI_NO_FOOD"], [complete([]), "AI_NO_FOOD"], [{ ...complete([item]), stop_reason: "max_tokens" }, "AI_INCOMPLETE"], [{ ...complete([item]), stop_reason: "refusal" }, "AI_REFUSED"]] as const;
+  for (const [value, code] of cases) await assert.rejects(extractClaudeMenu(parseMenuImage(image), "test-key", undefined, respond(value)), fail(code));
 });

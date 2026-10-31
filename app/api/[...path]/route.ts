@@ -1,5 +1,6 @@
 import { env } from "cloudflare:workers";
 import { extractClaudeMenu, parseMenuImage } from "@/lib/claude-menu";
+import { readMenuPhoto, storeMenuPhoto } from "@/lib/menu-photos";
 import { reserveAiRequest } from "@/lib/ai-usage";
 import { createBooth } from "@/lib/seed";
 import { authorize, hashToken, insertBooth, mutateBooth, readBooth, secret } from "@/lib/store";
@@ -32,6 +33,11 @@ async function handle(request: Request) {
       return json({ boothId: booth.id, token, booth: publicBooth(booth) }, 201);
     }
     const { row, booth } = await readBooth(id);
+    if (action === "photos" && method === "GET") {
+      const path = "/api/booths/" + id + "/photos/" + orderId;
+      if (!booth.published || !booth.menu.some(item => item.image === path)) await authorize(request, row.access_hash);
+      return await readMenuPhoto(env.BUCKET, id, orderId);
+    }
     if (!action && method === "GET") {
       const result = publicBooth(booth);
       if (!result.published) result.menu = [];
@@ -57,7 +63,7 @@ async function handle(request: Request) {
       const updated = await mutateBooth(id, (b, revision) => {
         if (input.menu !== undefined) {
           if (input.revision !== revision) throw new DomainError("MENU_CHANGED", 409);
-          const next = validateMenu(input.menu);
+          const next = validateMenu(input.menu, id);
           const activeItemIds = b.orders.filter(o => !["collected", "cancelled"].includes(o.status)).flatMap(o => o.lines.map(l => l.itemId));
           if (activeItemIds.some(itemId => !next.some(m => m.id === itemId))) throw new DomainError("MENU_HAS_ACTIVE_ORDERS", 409);
           b.menu = next;
@@ -83,8 +89,9 @@ async function handle(request: Request) {
       const image = parseMenuImage(input?.image);
       if (!env.DB) throw new DomainError("DATABASE_UNAVAILABLE", 503);
       await reserveAiRequest(env.DB, env.AI_DAILY_LIMIT);
-      const items = await extractClaudeMenu(image, env.ANTHROPIC_API_KEY, env.ANTHROPIC_MODEL);
-      return json({ items, mode: "ai", provider: "claude", requiresConfirmation: true });
+      const result = await extractClaudeMenu(image, env.ANTHROPIC_API_KEY, env.ANTHROPIC_MODEL);
+      const photo = result.imageType === "food" ? await storeMenuPhoto(env.BUCKET, id, image) : "";
+      return json({ ...result, photo, mode: "ai", provider: "claude", requiresConfirmation: true });
     }
     throw new DomainError("NOT_FOUND", 404);
   } catch (error) {
