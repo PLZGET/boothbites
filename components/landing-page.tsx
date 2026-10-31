@@ -67,9 +67,9 @@ export default function LandingPage() {
       <section className="landing-vendors" id="vendors" aria-labelledby="vendors-title"><div className="landing-wrap landing-vendor-grid">
         <div className="landing-feature-copy">
           <h2 id="vendors-title">사장님은 요리에<br className="landing-tablet-break"/> 더 집중하세요.</h2>
-          <p className="landing-feature-intro">짧게 열리는 축제 부스에 맞춰,<br/>메뉴 준비도 주문 관리도 한 화면에서.</p>
+          <p className="landing-feature-intro">메뉴 소개를 고민하는 시간은 줄이고,<br/>음식을 만드는 일에 더 집중할 수 있도록.</p>
           <dl className="landing-benefits">
-            <div><dt>메뉴판을 온라인 메뉴로</dt><dd>메뉴명·가격·설명을 확인해 공개하면<br className="landing-desktop-break"/> 부스 전용 QR 안내판을 만들 수 있어요.</dd></div>
+            <div><dt>먹고 싶어지는 메뉴 소개, AI와 함께</dt><dd>메뉴판에서 읽은 이름과 설명을 바탕으로<br className="landing-desktop-break"/> 한·영 소개 초안을 다듬어요. 사장님이 확인하고<br className="landing-desktop-break"/> 공개하면 낯선 음식도 더 쉽게 소개할 수 있어요.</dd></div><div><dt>사진과 가격을 확인하면 QR 메뉴 완성</dt><dd>메뉴를 한눈에 확인해 공개하고,<br className="landing-desktop-break"/> 부스 전용 QR 안내판으로 손님을 맞이하세요.</dd></div>
             <div><dt>영어 주문도 한국어로 접수</dt><dd>손님이 영어로 고른 음식이 사장님 화면에는<br className="landing-desktop-break"/> 한국어 주문으로 도착해요.</dd></div>
             <div><dt>부스 상황에 맞게 접수 조절</dt><dd>남은 수량, 품절, 접수 중단을 관리하고<br className="landing-desktop-break"/> 주문별로 조리·준비 상태를 바꿔요.</dd></div>
           </dl>
@@ -77,7 +77,7 @@ export default function LandingPage() {
         </div>
         <div className="landing-vendor-proof">
           <img className="landing-vendor-art" src="/images/print/vendor-art.webp" width={1536} height={1024} alt="주문 화면 옆에서 요리에 집중하는 축제 부스 사장님" loading="lazy"/>
-          <figure className="landing-order-sheet">
+          <div className="landing-ai-example" aria-label="AI 메뉴 소개 방식 예시"><h3>메뉴 소개는 이렇게 달라져요</h3><div><p><span>메뉴판에 적힌 정보</span>쫄깃한 쌀떡 · 매콤달콤 소스 · 1컵</p><ArrowRight size={20} aria-hidden="true"/><p><span>다듬은 소개 예시</span><strong>매콤달콤 쌀떡볶이</strong>쫄깃한 쌀떡에 매콤달콤한 소스를 더한 한 컵. 축제에서 즐겨보세요.</p></div><small>설명 방식의 예시입니다. AI는 연결 후 사용할 수 있으며, 읽지 못한 정보는 직접 입력해요.</small></div><figure className="landing-order-sheet">
             <figcaption><Store size={18} aria-hidden="true"/><strong>소풍 분식</strong><span>주문 화면 예시</span></figcaption>
             <div className="landing-order-heading"><span>새 주문이 들어왔어요</span><strong>#024</strong></div>
             <div className="landing-order-row"><span>떡볶이 <small lang="en">Tteokbokki</small></span><span>1개</span><strong>₩5,000</strong></div>
@@ -115,7 +115,7 @@ export default function LandingPage() {
       <section className="landing-try" id="try" aria-labelledby="try-title"><div className="landing-wrap landing-try-inner">
         <div><h2 id="try-title">이제, 두 화면을<br/>직접 연결해 보세요.</h2><p>사장님 화면에서 손님 화면을 열어 주문해 보세요.<br/>하나의 주문이 접수부터 픽업까지 이어집니다.</p></div>
         <div className="landing-try-actions"><a className="landing-button" href="/studio">사장님으로 시작하기<ArrowRight size={22}/></a><a className="landing-button landing-button-outline" href="/demo">손님으로 주문해 보기<ArrowRight size={22}/></a><p>실제 결제 없는 체험 데모입니다.</p></div>
-        <details className="landing-demo-details"><summary>데모에서 확인할 수 있는 범위</summary><p>메뉴 공개, QR 안내판, 한·영 주문, 조리·픽업 상태를 체험할 수 있습니다. 결제는 모의 결제이며 실제 카드 정보를 받지 않습니다. 사진으로 메뉴를 읽는 AI 기능은 API 연결 후 사용할 수 있습니다. 상태 갱신은 페이지가 열려 있을 때 동작합니다. 예시 메뉴·부스는 시연용입니다.</p></details>
+        <details className="landing-demo-details"><summary>데모에서 확인할 수 있는 범위</summary><p>메뉴 공개, QR 안내판, 한·영 주문, 조리·픽업 상태를 체험할 수 있습니다. 결제는 모의 결제이며 실제 카드 정보를 받지 않습니다. 사진에서 메뉴를 읽고 한·영 이름과 소개 초안을 다듬는 AI 기능은 API 연결 후 사용할 수 있습니다. 상태 갱신은 페이지가 열려 있을 때 동작합니다. 예시 메뉴·부스는 시연용입니다.</p></details>
       </div></section>
     </main>
     <div className="landing-footer landing-wrap"><div className="landing-footer-top"><PrintBrand/><p>작은 부스에서 시작되는, 더 넓은 축제.</p><a className="landing-back-top" href="#top">맨 위로<ArrowUp size={17}/></a></div><Credits lang="ko"/></div>

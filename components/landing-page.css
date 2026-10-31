@@ -159,3 +159,12 @@
 
 .landing-order-foot>span:last-child,.landing-pickup-message>span,.landing-pickup-progress .is-reached,.landing .site-footer a{color:var(--print-teal-text)}
 .landing-text-link:hover,.landing-pickup-control:hover{color:#ba2518}
+.landing-ai-example{max-width:540px;margin:0 auto 22px;color:var(--print-ink);padding:0 4px}
+.landing-ai-example h3{font-size:19px;font-weight:800;line-height:1.5;margin-bottom:14px}
+.landing-ai-example>div{display:grid;grid-template-columns:minmax(0,.85fr) 20px minmax(0,1.3fr);gap:15px;align-items:start}
+.landing-ai-example p{font-size:13px;line-height:1.85}
+.landing-ai-example p>span{display:block;font-size:11px;font-weight:700;margin-bottom:5px}
+.landing-ai-example p>strong{display:block;font-size:17px;line-height:1.6;margin-bottom:4px}
+.landing-ai-example>div>svg{margin-top:26px}
+.landing-ai-example>small{display:block;font-size:10px;line-height:1.8;margin-top:13px}
+@media(max-width:760px){.landing-ai-example{margin-bottom:26px;padding:0}.landing-ai-example>div{gap:12px}.landing-ai-example h3{font-size:18px}.landing-ai-example p{font-size:12px}.landing-ai-example p>strong{font-size:16px}}
