@@ -89,7 +89,7 @@ async function handle(request: Request) {
       const image = parseMenuImage(input?.image);
       if (!env.DB) throw new DomainError("DATABASE_UNAVAILABLE", 503);
       await reserveAiRequest(env.DB, env.AI_DAILY_LIMIT);
-      const result = await extractClaudeMenu(image, env.ANTHROPIC_API_KEY, env.ANTHROPIC_MODEL);
+      const result = await extractClaudeMenu(image, env.ANTHROPIC_API_KEY, env.ANTHROPIC_MODEL, undefined, () => reserveAiRequest(env.DB!, env.AI_DAILY_LIMIT));
       const photo = result.imageType === "food" ? await storeMenuPhoto(env.BUCKET, id, image) : "";
       return json({ ...result, photo, mode: "ai", provider: "claude", requiresConfirmation: true });
     }

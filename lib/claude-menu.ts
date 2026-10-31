@@ -45,35 +45,49 @@ function parseDraft(value: unknown): MenuExtraction {
   return { imageType, items };
 }
 
-export async function extractClaudeMenu(image: MenuImage, apiKey: string, model = DEFAULT_CLAUDE_MODEL, send: typeof fetch = fetch): Promise<MenuExtraction> {
-  let response: Response;
-  try {
-    response = await send("https://api.anthropic.com/v1/messages", {
-      method: "POST", signal: AbortSignal.timeout(45_000),
-      headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model, max_tokens: 6000, system,
-        messages: [{ role: "user", content: [{ type: "image", source: image }, { type: "text", text: "Identify the food photo or read the menu. Return Korean and English drafts for seller review." }] }],
-        output_config: { effort: "low", format: { type: "json_schema", schema } },
-      }),
-    });
-  } catch { throw new DomainError("AI_UNAVAILABLE", 502); }
-  if (!response.ok) {
-    if (response.status === 401 || response.status === 403) throw new DomainError("AI_AUTH_ERROR", 503);
-    if (response.status === 429) throw new DomainError("AI_RATE_LIMIT", 429);
-    // Never forward upstream messages: they can contain account or request details.
-    throw new DomainError("AI_UNAVAILABLE", 502);
+export async function extractClaudeMenu(image: MenuImage, apiKey: string, model = DEFAULT_CLAUDE_MODEL, send: typeof fetch = fetch, beforeRetry?: () => Promise<void>): Promise<MenuExtraction> {
+  // Sonnet 5.5 defaults to adaptive thinking even at low effort. This task has
+  // no tools; between_tools keeps the output budget for the actual menu JSON.
+  // https://platform.claude.com/docs/en/models/sonnet-5-5/whats-new-sonnet-5-5
+  const signal = AbortSignal.timeout(45_000);
+  for (let attempt = 0; attempt < 2; attempt++) {
+    // A retry is another paid request and must consume the shared daily budget.
+    if (attempt) await beforeRetry?.();
+    let response: Response;
+    try {
+      response = await send("https://api.anthropic.com/v1/messages", {
+        method: "POST", signal,
+        headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model, max_tokens: attempt ? 12288 : 8192, system,
+          ...(model === DEFAULT_CLAUDE_MODEL ? { thinking: { type: "between_tools" } } : {}),
+          messages: [{ role: "user", content: [{ type: "image", source: image }, { type: "text", text: "Identify the food photo or read the menu. Return Korean and English drafts for seller review." + (attempt ? " Keep each description to one short sentence. Finish the complete JSON object." : "") }] }],
+          output_config: { effort: "low", format: { type: "json_schema", schema } },
+        }),
+      });
+    } catch { throw new DomainError("AI_UNAVAILABLE", 502); }
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) throw new DomainError("AI_AUTH_ERROR", 503);
+      if (response.status === 429) throw new DomainError("AI_RATE_LIMIT", 429);
+      throw new DomainError("AI_UNAVAILABLE", 502);
+    }
+    try {
+      const result = await response.json() as { stop_reason?: string; usage?: { input_tokens?: number; output_tokens?: number }; content?: { type?: string; text?: string }[] };
+      // Log operational metadata only, never images, generated copy or secrets.
+      console.info("Menu AI completion", { attempt: attempt + 1, stopReason: result.stop_reason, outputTokens: result.usage?.output_tokens, blockTypes: Array.isArray(result.content) ? result.content.map(block => block.type) : [] });
+      if (result.stop_reason === "max_tokens") {
+        if (attempt === 0) continue;
+        throw new DomainError("AI_INCOMPLETE", 422);
+      }
+      if (result.stop_reason === "refusal") throw new DomainError("AI_REFUSED", 422);
+      if (result.stop_reason !== "end_turn" || !Array.isArray(result.content)) throw new DomainError("AI_INVALID_RESPONSE", 502);
+      const text = result.content.filter(block => block.type === "text").map(block => block.text || "").join("");
+      return parseDraft(JSON.parse(text));
+    } catch (error) {
+      const failure = error instanceof DomainError ? error : new DomainError("AI_INVALID_RESPONSE", 502);
+      console.warn("Menu AI response rejected", { code: failure.code });
+      throw failure;
+    }
   }
-  try {
-    const result = await response.json() as { stop_reason?: string; content?: { type?: string; text?: string }[] };
-    if (result.stop_reason === "max_tokens") throw new DomainError("AI_INCOMPLETE", 422);
-    if (result.stop_reason === "refusal") throw new DomainError("AI_REFUSED", 422);
-    if (result.stop_reason !== "end_turn" || !Array.isArray(result.content)) throw new DomainError("AI_INVALID_RESPONSE", 502);
-    const text = result.content.filter(block => block.type === "text").map(block => block.text || "").join("");
-    return parseDraft(JSON.parse(text));
-  } catch (error) {
-    const failure = error instanceof DomainError ? error : new DomainError("AI_INVALID_RESPONSE", 502);
-    console.warn("Menu AI response rejected", { code: failure.code });
-    throw failure;
-  }
+  throw new DomainError("AI_INCOMPLETE", 422);
 }

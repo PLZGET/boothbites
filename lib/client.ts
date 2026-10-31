@@ -19,7 +19,7 @@ const messages: Record<string, [string, string]> = {
  INVALID_IMAGE: ["Choose a JPG, PNG or WebP image up to 4 MB.", "JPG·PNG·WebP 형식의 4MB 이하 사진을 선택해 주세요."],
  AI_NO_FOOD: ["No food or readable menu was found. Choose a photo showing the dish or menu.", "음식이나 메뉴판을 확인하지 못했어요. 음식이 잘 보이는 사진 또는 메뉴판 사진을 선택해 주세요."],
  AI_INVALID_RESPONSE: ["The AI response could not be processed. Please try again.", "AI 결과를 처리하지 못했어요. 사진은 유지되니 다시 시도해 주세요."],
- AI_INCOMPLETE: ["The AI response was cut short. Try again with fewer menu items in the photo.", "AI 응답이 중간에 끝났어요. 다시 시도하거나 메뉴판을 나눠 촬영해 주세요."],
+ AI_INCOMPLETE: ["The AI could not finish after an automatic retry. Your photo and existing menu are unchanged. Please try again shortly.", "자동 재시도 후에도 초안을 완성하지 못했어요. 사진과 기존 메뉴는 유지됩니다. 잠시 후 다시 시도해 주세요."],
  AI_REFUSED: ["This photo could not be processed. Choose another food or menu photo.", "이 사진은 AI가 처리하지 못했어요. 다른 음식·메뉴판 사진을 선택해 주세요."],
  PHOTO_STORAGE_UNAVAILABLE: ["The photo could not be saved. Please try again.", "음식 사진을 저장하지 못했어요. 잠시 후 다시 시도해 주세요."],
  DEMO_LIMIT: ["This booth reached its demo order limit.", "데모 주문 한도에 도달했습니다."],
