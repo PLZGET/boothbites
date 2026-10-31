@@ -1,2 +1,2 @@
-import BoothApp from "@/components/booth-app";
-export default function Home() { return <BoothApp/>; }
+import LandingPage from "@/components/landing-page";
+export default function Home() { return <LandingPage/>; }
