@@ -1,0 +1,44 @@
+{
+  "usage": "Reference photography for a fictional demonstration menu, not photographs of products sold by a real booth.",
+  "checkedAt": "2026-10-31",
+  "images": [
+    {
+      "file": "tteokbokki.jpg",
+      "title": "Tteokbokki.JPG",
+      "author": "Popo le Chien",
+      "source": "https://commons.wikimedia.org/wiki/File:Tteokbokki.JPG",
+      "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4d/Tteokbokki.JPG/960px-Tteokbokki.JPG",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "changes": "Wikimedia-generated 960px thumbnail. No local crop or retouching; display crop may vary.",
+      "altEn": "Korean rice cakes in a glossy red sauce, with vegetables, on a plate",
+      "altKo": "접시에 담긴 붉은 양념의 떡볶이와 채소"
+    },
+    {
+      "file": "hotteok.jpg",
+      "title": "Hotteok 2.jpg",
+      "author": "Sandra Vallaure",
+      "source": "https://commons.wikimedia.org/wiki/File:Hotteok_2.jpg",
+      "originalSource": "https://www.flickr.com/photos/vallausa/33316291512/",
+      "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b1/Hotteok_2.jpg/960px-Hotteok_2.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "changes": "Wikimedia-generated 960px thumbnail. No local crop or retouching; display crop may vary.",
+      "altEn": "Golden hotteok pancakes cooking on a round street-food griddle",
+      "altKo": "둥근 철판 위에서 노릇하게 익어가는 호떡"
+    },
+    {
+      "file": "chicken.jpg",
+      "title": "Dak-gangjeong 2.jpg",
+      "author": "Dr 방원장",
+      "source": "https://commons.wikimedia.org/wiki/File:Dak-gangjeong_2.jpg",
+      "originalSource": "http://truepsh3.tistory.com/94",
+      "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c4/Dak-gangjeong_2.jpg/960px-Dak-gangjeong_2.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "changes": "Wikimedia-generated 960px thumbnail. No local crop or retouching; display crop may vary.",
+      "altEn": "Glazed bite-sized dakgangjeong chicken topped with sesame on a ceramic plate",
+      "altKo": "도자기 접시에 담긴 깨가 뿌려진 한입 크기의 양념 닭강정"
+    }
+  ]
+}
